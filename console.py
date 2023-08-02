@@ -73,7 +73,7 @@ class HBNBCommand(cmd.Cmd):
                 pline = pline[2].strip()  # pline is now str
                 if pline:
                     # check for *args or **kwargs
-                    if pline[0] is '{' and pline[-1] is'}'\
+                    if pline[0] is '{' and pline[-1] is '}'\
                             and type(eval(pline)) is dict:
                         _args = pline
                     else:
@@ -115,43 +115,30 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
-        list_arg = args.split()
-        dictionnary = {}
-       
-        for element in list_arg[1:]:
-            try:
-                key, value = element.split("=")
-                value = value.replace('_', ' ')
-                value = value.strip("\"")
-                dictionnary[key] = value
-            except Exception:
-                pass
-
-            if key in HBNBCommand.types:
-                dictionnary[key] = HBNBCommand.types[key](dictionnary[key])
-        
+        arg_list = args.split()
         if not args:
             print("** class name missing **")
             return
-        
-        class_name = list_arg[0]
-        if not class_name:
-            print("** class name missing **")
-            return
-        elif class_name not in HBNBCommand.classes:
+        elif arg_list[0] not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        
-        new_instance = HBNBCommand.classes[class_name]()
-        
-        for cle, value in dictionnary.items():
-            setattr(new_instance, cle, value)
-          
-        
-        storage.save()
+
+        new_instance = HBNBCommand.classes[arg_list[0]]()
+        for i in range(1, len(arg_list)):
+            s = arg_list[i].split('=')
+            if len(s) > 1:
+                if s[1][0] == '"':
+                    s[1] = s[1].replace('_', ' ')
+                    setattr(new_instance, s[0], s[1][1:-1])
+                elif '.' in s[1]:
+                    setattr(new_instance, s[0], float(s[1]))
+                else:
+                    setattr(new_instance, s[0], int(s[1]))
+
         print(new_instance.id)
+        new_instance.save()
         storage.save()
-        
+
     def help_create(self):
         """ Help information for the create method """
         print("Creates a class of any type")
@@ -213,7 +200,7 @@ class HBNBCommand(cmd.Cmd):
         key = c_name + "." + c_id
 
         try:
-            del(storage.all()[key])
+            del (storage.all()[key])
             storage.save()
         except KeyError:
             print("** no instance found **")
@@ -345,6 +332,7 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
+
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()
