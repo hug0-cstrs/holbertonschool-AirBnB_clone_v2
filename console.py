@@ -121,16 +121,14 @@ class HBNBCommand(cmd.Cmd):
         for element in list_arg[1:]:
             try:
                 key, value = element.split("=")
-            except ValueError:
-                continue
-            value = value.replace('"', '')
-            value = value.replace('_', ' ')
-            dictionnary[key] = value
+                value = value.replace('_', ' ')
+                value = value.strip("\"")
+                dictionnary[key] = value
+            except Exception:
+                pass
 
             if key in HBNBCommand.types:
                 dictionnary[key] = HBNBCommand.types[key](dictionnary[key])
-            
-        print(dictionnary)
         
         if not args:
             print("** class name missing **")
@@ -152,6 +150,7 @@ class HBNBCommand(cmd.Cmd):
         
         storage.save()
         print(new_instance.id)
+        storage.save()
         
     def help_create(self):
         """ Help information for the create method """
