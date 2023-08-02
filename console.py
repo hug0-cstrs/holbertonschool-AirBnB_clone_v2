@@ -125,15 +125,15 @@ class HBNBCommand(cmd.Cmd):
 
         new_instance = HBNBCommand.classes[arg_list[0]]()
         for i in range(1, len(arg_list)):
-            s = arg_list[i].split('=')
-            if len(s) > 1:
-                if s[1][0] == '"':
-                    s[1] = s[1].replace('_', ' ')
-                    setattr(new_instance, s[0], s[1][1:-1])
-                elif '.' in s[1]:
-                    setattr(new_instance, s[0], float(s[1]))
+            mot_split = arg_list[i].split('=')
+            if len(mot_split) > 1:
+                if mot_split[1][0] == '"':
+                    mot_split[1] = mot_split[1].replace('_', ' ')
+                    setattr(new_instance, mot_split[0], mot_split[1][1:-1])
+                elif '.' in mot_split[1]:
+                    setattr(new_instance, mot_split[0], float(mot_split[1]))
                 else:
-                    setattr(new_instance, s[0], int(s[1]))
+                    setattr(new_instance, mot_split[0], int(mot_split[1]))
 
         print(new_instance.id)
         new_instance.save()
