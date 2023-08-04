@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 """This module defines a class to manage file storage for hbnb clone"""
 import json
-import models
 
 
 class FileStorage:
@@ -10,14 +9,14 @@ class FileStorage:
     __objects = {}
 
     def all(self, cls=None):
-        """Returns dictionnary __objects"""
+        """Returns a dictionary of models currently in storage"""
         if cls is None:
             return FileStorage.__objects
-        myDict = {}
-        for key, value in FileStorage.__objects.items():
-            if (value.__class__ == cls):
-                myDict[key] = value
-        return myDict
+        new_dict = {}
+        for k, v in FileStorage.__objects.items():
+            if isinstance(v, cls):
+                new_dict[k] = v
+        return (new_dict)
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
@@ -43,10 +42,10 @@ class FileStorage:
         from models.review import Review
 
         classes = {
-                    'BaseModel': BaseModel, 'User': User, 'Place': Place,
-                    'State': State, 'City': City, 'Amenity': Amenity,
-                    'Review': Review
-                  }
+            'BaseModel': BaseModel, 'User': User, 'Place': Place,
+            'State': State, 'City': City, 'Amenity': Amenity,
+            'Review': Review
+        }
         try:
             temp = {}
             with open(FileStorage.__file_path, 'r') as f:
@@ -57,11 +56,9 @@ class FileStorage:
             pass
 
     def delete(self, obj=None):
-        """delete obj from __objects if it's inside"""
-        if obj is not None:
-            bye_key = str(obj.__class__.__name__) + '.' + (obj.id)
-            FileStorage.__objects.pop(bye_key)
-
-    def close(self):
-        """Reload data"""
-        self.reload()
+        """Delete an object from the dictionnary"""
+        if obj is None:
+            return
+        key = obj.to_dict()['__class__'] + '.' + obj.id
+        del FileStorage.__objects[key]
+        FileStorage.save(self)
