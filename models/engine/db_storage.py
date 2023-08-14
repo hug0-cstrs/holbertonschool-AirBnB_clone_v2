@@ -15,58 +15,66 @@ from models.review import Review
 class DBStorage:
     __engine = None
     __session = None
+    valid_classes = ["User", "State", "City", "Amenity", "Place", "Review"]
 
     def __init__(self):
-        # Récupérer les informations de connexion de l'environnement
-        user = os.getenv('HBNB_MYSQL_USER')
-        password = os.getenv('HBNB_MYSQL_PWD')
-        host = os.getenv('HBNB_MYSQL_HOST')
-        db = os.getenv('HBNB_MYSQL_DB')
+        self.__engine = create_engine("mysql+mysqldb://" +
+                                      os.environ['HBNB_MYSQL_USER'] +
+                                      ":" + os.environ['HBNB_MYSQL_PWD'] +
+                                      "@" + os.environ['HBNB_MYSQL_HOST'] +
+                                      ":3306/" +
+                                      os.environ['HBNB_MYSQL_DB'])
 
-        # Créer le moteur
-        self.__engine = create_engine(
-            f'mysql+mysqldb://{user}:{password}@{host} \
-            {db}', pool_pre_ping=True
-            )
-        __session = Session(self.__engine)
-
-        if os.getenv('HBNB_ENV') == 'test':
-            Base.metadata.drop_all(bind=self.__engine)
+        try:
+            if os.environ['HBNB_MYSQL_ENV'] == "test":
+                Base.metadata.drop_all(self.__engine)
+        except KeyError:
+            pass
 
     def all(self, cls=None):
-        # all methode
-        obj_dict = {}
+        storage = {}
         if cls is None:
-            classes = [User, State, City, Amenity, Place, Review]
-            for cls in classes:
-                objs = self.__session.query(cls).all()
-                for obj in objs:
-                    key = type(obj).__name__ + "." + str(obj.id)
-                    obj_dict[key] = obj
+            for cls_name in self.valid_classes:
+                for instance in self.__session.query(eval(cls_name)):
+                    storage[instance.id] = instance
         else:
-            objs = self.__session.query(cls).all()
-            for obj in objs:
-                key = type(obj).__name__ + "." + str(obj.id)
-                obj_dict[key] = obj
+            if cls not in self.valid_classes:
+                return
+            for instance in self.__session.query(eval(cls)):
+                storage[instance.id] = instance
 
-        return obj_dict
+        return storage
 
     def new(self, obj):
         self.__session.add(obj)
 
     def save(self):
-        self.__session.commit()
+        try:
+            self.__session.commit()
+        except:
+            self.__session.rollback()
+            raise
+        finally:
+            self.__session.close()
 
-    def delete(self, obj=None):
-        if obj is not None:
-            self.__session.delete(obj)
+    def update(self, cls, obj_id, key, new_value):
+        res = self.__session.query(eval(cls)).filter(eval(cls).id == obj_id)
+
+        if res.count() == 0:
+            return 0
+
+        res.update({key: (new_value)})
+        return 1
 
     def reload(self):
         Base.metadata.create_all(self.__engine)
-        session_factory = sessionmaker(
-            bind=self.__engine, expire_on_commit=False
-            )
-        self.__session = scoped_session(session_factory)
+        self.__session = scoped_session(sessionmaker(bind=self.__engine))
+
+    def delete(self, obj=None):
+        if obj is None:
+            return
+
+        self.__session.delete(obj)
 
     def close(self):
         self.__session.remove()
