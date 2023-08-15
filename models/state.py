@@ -1,31 +1,38 @@
 #!/usr/bin/python3
-""" class State  """
-from sqlalchemy import Column, String
+""" State Module for HBNB project """
 from models.base_model import BaseModel, Base
-from sqlalchemy.orm import relationship
 from models.city import City
-import os
+import models
+from sqlalchemy import Column, String
+from sqlalchemy.orm import relationship
+from os import getenv
+""" `getenv` to determine in which storage type we are
+by scanning the HBNB_TYPE_STORAGE"""
 
 
 class State(BaseModel, Base):
-    """ class State """
+    """
+    State class
+    Establish a relationship with the class City
+    """
     __tablename__ = 'states'
+    """ db ==>  means let's go for SQLAlchemy logic"""
     name = Column(String(128), nullable=False)
-    if os.getenv("HBNB_TYPE_STORAGE") == "db":
-        cities = relationship("City", backref="states")
-    else:
-        name = ""
+    cities = relationship('City', cascade='all, delete', backref='state')
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    if getenv('HBNB_TYPE_STORAGE', '') != 'db':
         @property
         def cities(self):
-            """getter attribute cities that returns the list of
-            City instances with
-            state_id equals to the current State.id"""
-            from models import storage
-            from models.city import City
-            city_list = []
-            all_city = storage.all(City)
-            for _, v in all_city.items():
-                if self.id == v.state_id:
-                    city_list.append(v)
-            return city_list
+            """
+            Getter - returns the list of City instances
+            with state_id == State.id
+            FileStorage relationship between State and City
+            """
+            l_cities = []
+            for city in models.storage.all(City).values():
+                if city.state_id == self.id:
+                    l_cities.append(city)
+            return l_cities
