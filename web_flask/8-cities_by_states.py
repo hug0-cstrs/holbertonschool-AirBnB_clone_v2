@@ -2,6 +2,7 @@
 """ Script that runs an app with Flask framework """
 from flask import Flask, render_template
 from models import *
+from models.state import State
 
 app = Flask(__name__)
 

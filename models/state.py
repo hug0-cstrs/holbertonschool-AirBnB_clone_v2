@@ -1,29 +1,31 @@
 #!/usr/bin/python3
-import models
-from models.base_model import BaseModel, Base
-from models import *
+""" class State  """
 from sqlalchemy import Column, String
-from sqlalchemy.orm import relationship, backref
-from os import getenv
+from models.base_model import BaseModel, Base
+from sqlalchemy.orm import relationship
+from models.city import City
+import os
 
 
 class State(BaseModel, Base):
-    __tablename__ = "states"
+    """ class State """
+    __tablename__ = 'states'
     name = Column(String(128), nullable=False)
+    if os.getenv("HBNB_TYPE_STORAGE") == "db":
+        cities = relationship("City", backref="states")
+    else:
+        name = ""
 
-    cities = relationship("City", backref="state",
-                          cascade="all, delete, delete-orphan")
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    if getenv('HBNB_TYPE_STORAGE', '') != 'db':
         @property
         def cities(self):
-            all_cities = models.storage.all("City")
-            temp = []
-            for c_id in all_cities:
-                if all_cities[c_id].state_id == self.id:
-                    temp.append(all_cities[c_id])
-
-            return temp
+            """getter attribute cities that returns the list of
+            City instances with
+            state_id equals to the current State.id"""
+            from models import storage
+            from models.city import City
+            city_list = []
+            all_city = storage.all(City)
+            for _, v in all_city.items():
+                if self.id == v.state_id:
+                    city_list.append(v)
+            return city_list
