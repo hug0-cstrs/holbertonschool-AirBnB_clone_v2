@@ -1,35 +1,29 @@
 #!/usr/bin/python3
-""" State Module for HBNB project """
-from models.base_model import BaseModel, Base
-from models.city import City
 import models
+from models.base_model import BaseModel, Base
+from models import *
 from sqlalchemy import Column, String
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from os import getenv
-""" `getenv` to determine in which storage type we are
-by scanning the HBNB_TYPE_STORAGE"""
 
 
 class State(BaseModel, Base):
-    """
-    State class
-    Establish a relationship with the class City
-    """
-    __tablename__ = 'states'
-    """ db ==>  means let's go for SQLAlchemy logic"""
+    __tablename__ = "states"
     name = Column(String(128), nullable=False)
-    cities = relationship('City', cascade='all, delete', backref='state')
+
+    cities = relationship("City", backref="state",
+                          cascade="all, delete, delete-orphan")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     if getenv('HBNB_TYPE_STORAGE', '') != 'db':
         @property
         def cities(self):
-            """
-            Getter - returns the list of City instances
-            with state_id == State.id
-            FileStorage relationship between State and City
-            """
-            l_cities = []
-            for city in models.storage.all(City).values():
-                if city.state_id == self.id:
-                    l_cities.append(city)
-            return l_cities
+            all_cities = models.storage.all("City")
+            temp = []
+            for c_id in all_cities:
+                if all_cities[c_id].state_id == self.id:
+                    temp.append(all_cities[c_id])
+
+            return temp
