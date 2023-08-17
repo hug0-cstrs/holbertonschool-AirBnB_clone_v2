@@ -1,46 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<link rel="shortcut icon" type="image/x-icon" href="../static/images/icon.png"/>
-		<link rel="stylesheet" href="../static/styles/4-common.css"/>
-		<link rel="stylesheet" href="../static/styles/3-header.css"/>
-		<link rel="stylesheet" href="../static/styles/3-footer.css"/>
-		<link rel="stylesheet" href="../static/styles/6-filters.css"/>
+		<title>AirBnB clone</title>
+		<link rel="shortcut icon" href="/static/images/icon.ico" >
+		<link rel="stylesheet" href="static/styles/4-common.css"/>
+		<link rel="stylesheet" href="static/styles/3-header.css"/>
+		<link rel="stylesheet" href="static/styles/3-footer.css"/>
+		<link rel="stylesheet" href="static/styles/6-filters.css"/>
 	</head>
-	<body>
+    <body>
 		<header>
-			<div class="logo"></div>
+			<div id="header_logo"></div>
 		</header>
 		<div class="container">
 			<section class="filters">
+				<button>Search</button>
 				<div class="locations">
 					<h3>States</h3>
 					<h4>&nbsp;</h4>
 					<ul class="popover">
-					{% for state in states.values()|sort(attribute='name') %}
-					<h2>{{ state.name }}</h2>
-					{% for city in state.cities|sort(attribute='name') %}
-					<li>{{ city.name }}</li>
-					{% endfor %}
-					{% endfor %}
+							{% for state in states.values()|sort(attribute='name') %}
+								<LI><H2><B>{{ state.name }}</H2></B>
+									<UL>
+										{% for city in state.cities|sort(attribute='name') %}
+											<LI><H4><B>{{ city.name }}</B></H4></LI>
+										{% endfor %}
+									</UL>
+								</LI>
+							{% endfor %}
 					</ul>
 				</div>
 				<div class="amenities">
 					<h3>Amenities</h3>
 					<h4>&nbsp;</h4>
 					<ul class="popover">
-						{% for amenity in amenities|sort(attribute='name') %}
-						<li>{{ amenity.name }}</li>
+						{% for amenity in amenities.values()|sort(attribute='name') %}
+						<LI><H4><B>{{ amenity.name }}</B></H4></LI>
 						{% endfor %}
 					</ul>
 				</div>
-				<button>
-					Search
-				</button>
+
 			</section>
 		</div>
 		<footer>
-			Holberton School
+			<p>Holberton School</p>
 		</footer>
 	</body>
 </html>
