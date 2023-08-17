@@ -13,17 +13,16 @@ def states():
     return render_template('9-states.html', states=states)
 
 
-@app.route('/states/<id>', strict_slashes=False)
-def cities_of_state(id):
-    """Get cities by states"""
-    list_states = storage.all(State)
-    for state in list_states.values():
-        if state.id == id:
-            cities = state.cities
-            return render_template('9-states.html', states=list_states,
-                                   cities=cities, state=state,
-                                   current_route="route_cities")
-    return render_template('9-states.html', current_route="not found")
+@app.route('/states/<id>')
+def states_given_id(id):
+    states = storage.all("State")
+    found_state = ""
+    for s_id in states:
+        if s_id == id:
+            found_state = states[s_id]
+
+    return render_template('9-states.html',
+                           state=found_state)
 
 
 @app.teardown_appcontext
