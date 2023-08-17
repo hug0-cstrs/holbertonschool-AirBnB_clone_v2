@@ -1,24 +1,26 @@
 <!DOCTYPE html>
 <HTML lang="en">
-  	<Head>
-    		<TITLE>HBNB</TITLE>
-  	</Head>
+	<HEAD>
+		<TITLE>HBNB</TITLE>
+	</HEAD>
 	<BODY>
-		{% if state %}
-		<H1>State: {{ state.name }}</H1>
-		<H3>Cities:</H3>
-		{% elif states %}
+		{% if current_route == "route_states" %}
 		<H1>States</H1>
-		{% else %}
-		<H1>Not Found!</H1>
-		{% endif %}
-		{% if state or states -%}
 		<UL>
-			{% set vals = states.values() if states else state.cities %}
-			{% for item in vals|sort(attribute='name') %}
-			<LI>{{ item.id }}: <B>{{ item.name }}</B></LI>
+			{% for state in states.values()|sort(attribute='name') %}
+			<LI>{{ state.id }}: <B>{{ state.name }}</B></LI>
 			{% endfor %}
 		</UL>
+		{% elif current_route == "route_cities" %}
+		<H1>State: {{ state.name }}</H1>
+		<H3>Cities:</H3>
+		<UL>
+			{% for city in state.cities|sort(attribute='name') %}
+			<LI>{{ city.id }}: <B>{{ city.name }}</B></LI>
+			{% endfor %}
+		</UL>
+		{% else %}
+		<H1>Not found!</H1>
 		{% endif %}
 	</BODY>
 </HTML>
