@@ -23,23 +23,22 @@
 	vertical-align: middle;
 	height: 100%;
 	float: left;
-    width: 25%;
+    	width: 25%;
 
 	line-height: 20px;
 }
 
 .popover {
-	list-style-type: none;
+	margin-top: 6px;
 	display: none;
-	background-color: #FAFAFA;
-	width: 100%;
-
-	margin-left: -1px;
-	margin-top: 8px;
-	padding: 25px 0px;
-
+	position: absolute;
+	background: #FAFAFA;
+	width: 25%;
+	color: black;
 	border: 1px solid #DDDDDD;
 	border-radius: 4px;
+	float: left;
+	padding-bottom: 30px;
 }
 
 .locations:hover .popover {
